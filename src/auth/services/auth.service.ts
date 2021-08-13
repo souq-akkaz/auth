@@ -13,6 +13,12 @@ interface ICreateToken {
   userId: number;
 }
 
+interface IVerifyToken {
+  currentUserId: number;
+  iat: number;
+  exp: number;
+}
+
 @injectable()
 export class AuthService {
 
@@ -30,5 +36,9 @@ export class AuthService {
 
   verifyPassword(plaingPassword: string, hashedPassword: string): boolean {
     return compareSync(plaingPassword, hashedPassword);
+  }
+
+  verifyToken(token: string): IVerifyToken {
+    return jwt.verify(token, process.env.JWT_SECRET) as IVerifyToken;
   }
 }

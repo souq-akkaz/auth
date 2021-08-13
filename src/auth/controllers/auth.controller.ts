@@ -1,3 +1,4 @@
+import { TokenExpiredError } from 'jsonwebtoken';
 import { Request, Response } from 'express';
 import { inject, injectable } from 'inversify';
 import _ from 'lodash';
@@ -9,6 +10,7 @@ import { LoginRequestDto, LoginResponseDto, SignUpResponseDto } from '../dtos';
 import { SignUpRequestDto } from '../dtos/sign-up.request.dto';
 import { AuthService } from '../services/auth.service';
 import { UserService } from '../services/user.service';
+import { CurrentUserResponseDto } from '../dtos/current-user.response.dto';
 
 @injectable()
 export class AuthController {
@@ -17,7 +19,8 @@ export class AuthController {
     private _authService: AuthService,
     @inject(TYPES.UserService)
     private _userService: UserService
-  ) { }
+  ) {}
+
   singup = async (req: Request, res: Response) => {
     const signupDto = req.body as SignUpRequestDto;
 
@@ -63,5 +66,49 @@ export class AuthController {
         user: { id: user.id, username: user.username }
       })
     );
+  }
+
+  currentUser = async (req: Request, res: Response) => {
+    let token = req.headers.authorization;
+    if (_.isNil(token) || _.isEmpty(token)) {
+      throw new UnAuthorizedError(
+        'No token provided',
+        'errors.currentUser.noTokenProvided',
+        'NTKPVDD_QK'
+      );
+    }
+
+    if (token.startsWith('Bearer ')) {
+      token = token.replace('Bearer ', '');
+    }
+
+    try {
+      const decoded = this._authService.verifyToken(token);
+      const user = await this._userService.getUserById(decoded.currentUserId);
+
+      res
+        .status(HttpStatusCode.OK)
+        .json(
+          CurrentUserResponseDto.toDto({
+            email: user.email,
+            id: user.id,
+            username: user.username
+          })
+        );
+    } catch (exc) {
+      console.error(exc);
+      if (exc instanceof TokenExpiredError) {
+        throw new UnAuthorizedError(
+          `Token is expired`,
+          'errors.currentUser.tokenExpired',
+          'tkexpp'
+        );
+      }
+      throw new UnAuthorizedError(
+        'Invalid token',
+        'errors.currentUser.invalidToken',
+        'INVTK'
+      );
+    }
   }
 }

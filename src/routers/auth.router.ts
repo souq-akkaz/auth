@@ -20,5 +20,9 @@ authRouter.post(
   buildDtoMiddleware(LoginRequestDto),
   handleRoute(authController.login)
 );
+authRouter.get(
+  '/current',
+  handleRoute(authController.currentUser)
+);
 
 export default authRouter;
