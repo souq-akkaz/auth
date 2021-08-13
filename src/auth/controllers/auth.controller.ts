@@ -96,7 +96,6 @@ export class AuthController {
           })
         );
     } catch (exc) {
-      console.error(exc);
       if (exc instanceof TokenExpiredError) {
         throw new UnAuthorizedError(
           `Token is expired`,
