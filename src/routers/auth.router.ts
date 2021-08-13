@@ -5,6 +5,7 @@ import { AuthController } from '../auth/controllers/auth.controller';
 import diContainer from '../di/di-container';
 import buildDtoMiddleware from '../middlewares/build-dto.middleware';
 import { SignUpRequestDto } from '../auth/dtos/sign-up.request.dto';
+import { LoginRequestDto } from '../auth/dtos';
 
 const authRouter = Router();
 const authController = diContainer.resolve(AuthController);
@@ -14,6 +15,10 @@ authRouter.post(
   buildDtoMiddleware(SignUpRequestDto),
   handleRoute(authController.singup)
 );
-authRouter.post('/login', handleRoute(authController.login));
+authRouter.post(
+  '/login',
+  buildDtoMiddleware(LoginRequestDto),
+  handleRoute(authController.login)
+);
 
 export default authRouter;

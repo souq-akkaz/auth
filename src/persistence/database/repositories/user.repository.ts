@@ -3,6 +3,7 @@ import { Model, Sequelize, DataTypes } from 'sequelize';
 import smallarize from '../../../helpers/functions/smallarize.fn';
 import config from '../../../config/config';
 import { IBuildUser, User } from '../../../core/models';
+import hashString from '../../../helpers/functions/hash-string.fn';
 
 export class UserRepo extends Model<User, IBuildUser> {
   toModel(): User {
@@ -16,7 +17,7 @@ export class UserRepo extends Model<User, IBuildUser> {
 }
 
 export default (sequelize: Sequelize) => {
-  return UserRepo.init({
+  const repo = UserRepo.init({
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
@@ -41,6 +42,15 @@ export default (sequelize: Sequelize) => {
     tableName: User.tableName,
     schema: config.db.schema,
     modelName: smallarize(User.name),
-    timestamps: false
+    timestamps: false,
+    hooks: {
+      beforeCreate: (user: UserRepo) => {
+        user.setDataValue(
+          'password',
+          hashString(user.getDataValue('password'))
+        )
+      }
+    }
   });
+  return repo;
 };

@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
-
-import errorGlobalHandler from '../core/exceptions/error-global-handler';
+import { HttpStatusCode } from '../core/exceptions';
 
 const errorGlobalHandlerMiddleware = (error, req: Request, res: Response, next: NextFunction) => {
-  const jsonError = errorGlobalHandler(error);
-  res.status(jsonError.statusCode).send(jsonError);
+  res
+    .status(error.statusCode || HttpStatusCode.INTERNAL_SERVER_ERROR)
+    .send(error);
 };
 
 export default errorGlobalHandlerMiddleware;

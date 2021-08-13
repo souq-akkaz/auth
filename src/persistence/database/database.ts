@@ -34,7 +34,7 @@ class Database {
   addModels(): void {
     const dirFiles = readdirSync(join(resolve(__dirname + '/repositories')));
     dirFiles
-      .filter((x) => (x.endsWith('.js') || x.endsWith('.ts') && !x.endsWith('.d.ts')))
+      .filter((x) => (x.endsWith('.js') || x.endsWith('.ts') && !x.endsWith('.d.ts') && !x.startsWith('index.')))
       .map((x) => resolve(`${__dirname}/repositories/${x}`))
       .map((x) => require(x).default(this.sequelize))
   }
