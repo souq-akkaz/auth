@@ -1,15 +1,13 @@
-import { Request, Response, NextFunction } from 'express';
-
 import { ParamterError } from './parameter-error';
 
-const errorGlobalHandler = (error, req: Request, res: Response, next: NextFunction) => {
+const errorGlobalHandler = (error: any) => {
   if (error instanceof ParamterError) {
-    res.status(error.statusCode).json({
+    return {
       statusCode: error.statusCode,
-      message: error.message,
+      message: error.messages,
       code: error.code,
       params: error.params
-    });
+    };
   }
 };
 

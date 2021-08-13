@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
@@ -8,8 +9,7 @@ import morgan from 'morgan';
 import config from './config/config';
 import database from './persistence/database/database';
 import setupAuthRoutes from './routers';
-import { UserRepo } from './persistence/database/repositories/user.repository';
-import errorGlobalHandler from './core/exceptions/error-global-handler';
+import errorGlobalHandlerMiddleware from './middlewares/global-error.middleware';
 
 dotenv.config({ path: process.env.NODE_ENV == 'production' ? '.env' : 'dev.env' });
 
@@ -41,7 +41,7 @@ const bootstrap = async () => {
   await establishDatabaseConnection();
 
   setupAuthRoutes(app);
-  app.use(errorGlobalHandler);
+  app.use(errorGlobalHandlerMiddleware);
 
   app.listen(
     config.port,

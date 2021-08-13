@@ -1,3 +1,4 @@
+import { injectable } from 'inversify';
 import { WhereOptions, Op } from 'sequelize';
 import jwt from 'jsonwebtoken';
 
@@ -10,6 +11,7 @@ interface ICreateToken {
   userId: number;
 }
 
+@injectable()
 export class AuthService {
   createUser = async (data: IBuildUser): Promise<User> => {
     const where: WhereOptions<User> = {
@@ -20,7 +22,7 @@ export class AuthService {
     };
     const existingUser = await UserRepo.findOne({ where });
     if (notNil(existingUser)) {
-      throw new ParamterError('User already exists', ['email', 'password'], 'UQWXSS01');
+      throw new ParamterError('User already exists', 'email', 'UQWXSS01');
     }
 
     const createdUser = await UserRepo.create(data);
@@ -34,4 +36,8 @@ export class AuthService {
     });
     return token;
   }
+
+  createRefreshToken = (data: ICreateToken): string => {
+    return jwt.sign({ currentUserId: data.userId }, process.env.JWT_SECRET, { expiresIn: '15m' })
+  };
 }
