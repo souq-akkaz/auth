@@ -19,7 +19,12 @@ export class UserService {
     };
     const existingUser = await UserRepo.findOne({ where });
     if (notNil(existingUser)) {
-      throw new ParamterError('User already exists', 'email', 'UQWXSS01');
+      throw new ParamterError(
+        'User already exists',
+        'email',
+        'errors.createUser.userAlreadyExists',
+        'UQWXSS01'
+      );
     }
 
     const createdUser = await UserRepo.create(data);

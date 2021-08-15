@@ -6,10 +6,18 @@ import compression from 'compression';
 import helmet from 'helmet';
 import morgan from 'morgan';
 
+import { TYPES } from './di/injection-tokens';
+import diContainer from './di/di-container';
+import establishNatsConection from './nats/connect';
+diContainer
+  .bind<Stan>(TYPES.StanClient)
+  .toConstantValue(establishNatsConection());
+
 import config from './config/config';
 import database from './persistence/database/database';
-import setupAuthRoutes from './routers';
+import setupRoutes from './routers';
 import errorGlobalHandlerMiddleware from './middlewares/global-error.middleware';
+import { Stan } from 'node-nats-streaming';
 
 dotenv.config({ path: process.env.NODE_ENV == 'production' ? '.env' : 'dev.env' });
 
@@ -40,7 +48,7 @@ const bootstrap = async () => {
 
   await establishDatabaseConnection();
 
-  setupAuthRoutes(app);
+  setupRoutes(app);
   app.use(errorGlobalHandlerMiddleware);
 
   app.listen(

@@ -17,7 +17,8 @@ const buildDto = async <T>(klass: ClassConstructor<T>, data: any): Promise<T> =>
       );
       throw new ParamterError(
         messages,
-        exc.map(R.prop('property'))
+        exc.map(R.prop('property')),
+        'errors.buildDto.failedToBuildDto'
       )
     }
     throw exc;

@@ -1,3 +1,4 @@
+import { Stan } from 'node-nats-streaming';
 import { TokenExpiredError } from 'jsonwebtoken';
 import { Request, Response } from 'express';
 import { inject, injectable } from 'inversify';
@@ -11,6 +12,7 @@ import { SignUpRequestDto } from '../dtos/sign-up.request.dto';
 import { AuthService } from '../services/auth.service';
 import { UserService } from '../services/user.service';
 import { CurrentUserResponseDto } from '../dtos/current-user.response.dto';
+import { UserCreatedEventPublisher } from '../../nats/user-created-event.publisher';
 
 @injectable()
 export class AuthController {
@@ -18,13 +20,22 @@ export class AuthController {
     @inject(TYPES.AuthService)
     private _authService: AuthService,
     @inject(TYPES.UserService)
-    private _userService: UserService
+    private _userService: UserService,
+    @inject(TYPES.StanClient)
+    private _stan: Stan
   ) {}
 
   singup = async (req: Request, res: Response) => {
     const signupDto = req.body as SignUpRequestDto;
 
     const createdUser = await this._userService.createUser(signupDto);
+    new UserCreatedEventPublisher(this._stan)
+      .publish({
+        email: createdUser.email,
+        userId: createdUser.id,
+        username: createdUser.username
+      });
+
     const token = this._authService.createToken({ userId: createdUser.id });
     const refreshToken = this._authService.createRefreshToken({ userId: createdUser.id });
 

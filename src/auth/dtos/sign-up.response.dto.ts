@@ -1,7 +1,7 @@
 import { plainToClass } from 'class-transformer';
 import _ from 'lodash';
 
-import { ParamterError } from '../../core/exceptions';
+import { ParamterError, TypoError } from '../../core/exceptions';
 import { User } from '../../core/models';
 
 interface IBuildSignUpResponseDto {
@@ -17,9 +17,9 @@ export class SignUpResponseDto {
 
   static toDto(data: IBuildSignUpResponseDto): SignUpResponseDto {
     if (_.isNil(data.token) || _.isNil(data.refreshToken) || _.isNil(data.user)) {
-      throw new ParamterError(
+      throw new TypoError(
         'To build sign up response dto instance you have to provide `token`, `refreshToken`, and `user`.',
-        ['token', 'refreshToken', 'user'],
+        'errors.buildSignUpResponseDto.invalidParameters',
         'BLDSIUPFLDz-1'
       );
     }

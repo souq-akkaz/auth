@@ -4,6 +4,7 @@ const handleRoute = (fn: (req: Request, res: Response, next: NextFunction) => vo
   try {
     await fn(req, res, next);
   } catch (exc) {
+    console.error(exc);
     next(exc);
   }
 };
