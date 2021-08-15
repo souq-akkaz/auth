@@ -1,5 +1,6 @@
 import { injectable } from 'inversify';
 import { Stan } from 'node-nats-streaming';
+
 import { SubjectsEnum } from '../core/models';
 
 interface IEvent {
@@ -17,7 +18,7 @@ export abstract class Publisher<T extends IEvent> {
   }
 
   publish(data: T['data']): void {
-    this._client.publish(this.subject, data, () => {
+    this._client.publish(this.subject, JSON.stringify(data), () => {
       console.log(`published event ${this.subject} successfully`);
     });
   }
